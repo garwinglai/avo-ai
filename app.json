@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "code4",
-    "slug": "code4",
-    "scheme": "code4",
+    "name": "avo",
+    "slug": "avo",
+    "scheme": "avo",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./src/assets/icon.png",
