@@ -6,19 +6,17 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Camera } from "expo-camera";
 import { useRouter } from "expo-router";
 import { useAuth } from "../../hooks/firebase/auth/AuthProvider";
+import { useEffect } from "react";
 
 export default function TabLayout() {
-  const { user } = useAuth(); // Get the current user from context
-  console.log("user", user);
-
+  const router = useRouter();
   const insets = useSafeAreaInsets();
   const isCameraScreen = usePathname();
-  const router = useRouter();
 
   const handleStartCamera = async () => {
     console.log("pressed");
 
-    // Request camera permissions every time the button is pressed
+    // Check request camera permissions every time the button is pressed
     const { status } = await Camera.requestCameraPermissionsAsync();
 
     if (status === "granted") {

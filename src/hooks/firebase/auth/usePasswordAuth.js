@@ -46,8 +46,6 @@ const usePasswordAuth = () => {
         password
       );
 
-      console.log("userCredential", userCredential.user);
-
       setUser(userCredential.user);
       return userCredential.user;
     } catch (err) {

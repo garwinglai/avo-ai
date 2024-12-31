@@ -9,7 +9,7 @@ import {
   Alert,
 } from "react-native";
 import { GoogleAuthProvider } from "firebase/auth";
-import { useRouter } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import usePasswordAuth from "../../hooks/firebase/auth/usePasswordAuth";
 
 const provider = new GoogleAuthProvider();
@@ -42,16 +42,13 @@ const Signup = () => {
       );
       console.log("accessToken", accessToken);
       console.log("uid", uid);
+      router.replace("/(tabs)");
     } catch (error) {
       Alert.alert(
         "Signup failed",
         `(${error})` // This will appear on the second line
       );
     }
-  };
-
-  const handleNavigateToLogin = () => {
-    router.replace("/auth/login");
   };
 
   return (
@@ -97,9 +94,11 @@ const Signup = () => {
         <Text className="text-p text-primary-dark">
           Already have an account?{" "}
         </Text>
-        <Pressable onPress={handleNavigateToLogin}>
-          <Text className="text-secondary-dark font-semibold">Log In</Text>
-        </Pressable>
+        <Link replace href="/auth/login" asChild>
+          <Pressable>
+            <Text className="text-secondary-dark font-semibold">Log In</Text>
+          </Pressable>
+        </Link>
       </View>
     </View>
   );

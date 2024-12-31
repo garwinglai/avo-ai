@@ -50,8 +50,6 @@ export const parseProduct = (openFoodFactProduct) => {
   const { updatedCategory: updatedMinerals, nutritionArray: vitaminsArray } =
     updateNutrientCategory(vitamins, nutriments);
 
-  console.log("updatedmacros", updatedMacros);
-
   const parsedProduct = {
     id: _id ?? null,
     name: product_name ?? "Unknown Product",
@@ -220,8 +218,8 @@ const updateNutrientCategory = (category, nutrition) => {
 
     if (nutrition[nutrientKey] !== undefined) {
       const nutritionAmount = nutrition[nutrientKey];
-      console.log("nutrientKey", nutrientKey);
       console.log("nutrientValue", nutritionAmount);
+      console.log("nutrientKey", nutrientKey);
       // Update and round the value
       category[key].amount_per_serving = nutritionAmount;
 

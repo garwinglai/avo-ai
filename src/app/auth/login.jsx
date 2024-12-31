@@ -8,7 +8,7 @@ import {
   Alert,
   ActivityIndicator,
 } from "react-native";
-import { useRouter } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import usePasswordAuth from "../../hooks/firebase/auth/usePasswordAuth";
 
 const Login = () => {
@@ -25,19 +25,13 @@ const Login = () => {
   const router = useRouter();
 
   const handleLoginWithPassword = async () => {
-    console.log("Login with email and password:", email, password);
     try {
-      const { accessToken, uid } = await signInWithPassword(email, password);
-
-      router.push("/(tabs)");
+      await signInWithPassword(email, password);
+      router.replace("/(tabs)");
     } catch (error) {
       console.log("error:", error);
       Alert.alert("Login failed", `(${error})`);
     }
-  };
-
-  const handleNavigateToSignup = () => {
-    router.replace("/auth/signup");
   };
 
   return (
@@ -78,9 +72,11 @@ const Login = () => {
         <Text className="text-p text-primary-dark">
           Don't have an account?{" "}
         </Text>
-        <Pressable onPress={handleNavigateToSignup}>
-          <Text className="text-secondary-dark font-semibold">Sign Up</Text>
-        </Pressable>
+        <Link replace href="/auth/signup" asChild>
+          <Pressable>
+            <Text className="text-secondary-dark font-semibold">Sign Up</Text>
+          </Pressable>
+        </Link>
       </View>
     </View>
   );

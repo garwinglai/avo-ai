@@ -5,13 +5,9 @@ import { auth } from "../../../firebase/firebaseConfig";
 import { signOut } from "firebase/auth";
 
 const MealPlannerTab = () => {
-  const router = useRouter();
-
   const handleLogout = async () => {
-    console.log("clicked");
     try {
       await signOut(auth);
-      router.push("/auth/login");
     } catch (error) {
       Alert.alert("Error logging out", error.message);
     }

@@ -9,15 +9,25 @@ export default function Layout() {
     <AuthProvider>
       <View className="flex-1">
         <StatusBar style="auto" />
-        <Stack>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="auth/login" options={{ headerShown: false }} />
-          <Stack.Screen name="auth/signup" options={{ headerShown: false }} />
+        <Stack initialRouteName="(tabs)">
           <Stack.Screen
-            name="camera" // This is the route name for your camera screen
+            name="(tabs)"
+            options={{ headerShown: false, animation: "none" }}
+          />
+          <Stack.Screen
+            name="auth/login"
             options={{
-              headerShown: false, // This hides the top header for the camera screen
+              animation: "none",
+              headerShown: false, // Hide the header
             }}
+          />
+          <Stack.Screen
+            name="auth/signup"
+            options={{ headerShown: false, animation: "none" }}
+          />
+          <Stack.Screen
+            name="camera"
+            options={{ headerShown: false, animation: "none" }}
           />
         </Stack>
       </View>

@@ -6,7 +6,6 @@ import { signOut } from "firebase/auth";
 import { auth } from "../../../firebase/firebaseConfig";
 
 const HomeTab = () => {
-  // console.log("user", user);
   const router = useRouter();
 
   const handleClick = async () => {
@@ -28,7 +27,6 @@ const HomeTab = () => {
   const handleLogout = async () => {
     try {
       await signOut(auth);
-      router.push("/auth/login");
     } catch (error) {
       Alert.alert("Error logging out", error.message);
     }

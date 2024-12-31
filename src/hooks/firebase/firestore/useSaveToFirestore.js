@@ -8,13 +8,10 @@ const useSaveToFirestore = () => {
   const [errorSavingToFirestore, setErrorSavingToFirestore] = useState(null);
 
   const saveToFirestore = async (collectionName, data) => {
-    console.log("saving to firestore", collectionName);
-
     setIsSavingToFirestore(true);
     setErrorSavingToFirestore(null);
 
     try {
-      console.log("start");
       const docRef = await addDoc(collection(db, collectionName), data);
       console.log("Document written with ID: ", docRef.id);
       return docRef.id; // Return the ID of the newly created document
@@ -23,7 +20,6 @@ const useSaveToFirestore = () => {
       setErrorSavingToFirestore(err.message);
       throw err;
     } finally {
-      console.log("hey");
       setIsSavingToFirestore(false);
     }
   };

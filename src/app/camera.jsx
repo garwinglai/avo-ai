@@ -11,18 +11,18 @@ import {
 import { Camera, CameraView } from "expo-camera"; // Import the Camera component from expo-camera
 import { useState, useEffect, useRef } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import PhotoPreview from "../../components/PhotoPreview";
+import PhotoPreview from "../components/PhotoPreview";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
-import ScannerAnimation from "../../components/ScannerAnimation";
-import useScanFoodProduct from "../../hooks/openFoodFacts/useScanFoodProduct";
+import ScannerAnimation from "../components/ScannerAnimation";
+import useScanFoodProduct from "../hooks/openFoodFacts/useScanFoodProduct";
 import { useRouter } from "expo-router";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import SwapCameraButton from "../../components/buttons/SwapCameraButton";
-import BottomSheetComponent from "../../components/sheets/BottomSheetComponent";
-import useSaveToFirestore from "../../hooks/firebase/firestore/useSaveToFirestore";
-import RectangleButtonPrimary from "../../components/buttons/RectangleButtonPrimary";
-import RectangleButtonSecondary from "../../components/buttons/RectangleButtonSecondary";
-import ScannedSheetDetail from "../../components/sheets/ScannedSheetDetail";
+import SwapCameraButton from "../components/buttons/SwapCameraButton";
+import BottomSheetComponent from "../components/sheets/BottomSheetComponent";
+import useSaveToFirestore from "../hooks/firebase/firestore/useSaveToFirestore";
+import RectangleButtonPrimary from "../components/buttons/RectangleButtonPrimary";
+import RectangleButtonSecondary from "../components/buttons/RectangleButtonSecondary";
+import ScannedSheetDetail from "../components/sheets/ScannedSheetDetail";
 
 const CameraScreen = ({ navigation }) => {
   const [hasPermission, setHasPermission] = useState(null);
