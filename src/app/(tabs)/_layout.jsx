@@ -1,36 +1,98 @@
-import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { Tabs } from "expo-router";
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { EvilIcons } from "@expo/vector-icons";
-import { View } from "react-native";
+import { View, Pressable, Platform } from "react-native";
+import { usePathname } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Camera } from "expo-camera";
+import { useRouter } from "expo-router";
+import { useAuth } from "../../hooks/firebase/auth/AuthProvider";
 
 export default function TabLayout() {
+  const { user } = useAuth(); // Get the current user from context
+  console.log("user", user);
+
+  const insets = useSafeAreaInsets();
+  const isCameraScreen = usePathname();
+  const router = useRouter();
+
+  const handleStartCamera = async () => {
+    console.log("pressed");
+
+    // Request camera permissions every time the button is pressed
+    const { status } = await Camera.requestCameraPermissionsAsync();
+
+    if (status === "granted") {
+      console.log("permission granted");
+      // Navigate to the camera screen
+      router.push("/camera");
+    } else if (status === "denied") {
+      Alert.alert(
+        "Camera permission denied",
+        "Please enable camera permissions in settings.",
+        [
+          {
+            text: "Open Settings",
+            onPress: () => Linking.openSettings(), // Open settings on both Android and iOS
+          },
+          { text: "Cancel" },
+        ]
+      );
+    } else {
+      Alert.alert(
+        "Camera permission not granted",
+        "Please grant permission to use the camera.",
+        [
+          {
+            text: "Open Settings",
+            onPress: () => Linking.openSettings(), // Open settings on both Android and iOS
+          },
+          { text: "Cancel" },
+        ]
+      );
+    }
+  };
+
   return (
-    <Tabs screenOptions={{ tabBarActiveTintColor: "blue" }}>
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: "Home",
-        }}
-      />
-      <Tabs.Screen
-        name="meal-planner"
-        options={{
-          title: "Meal Plan",
-        }}
-      />
-      <Tabs.Screen
-        name="shopping-list"
-        options={{
-          title: "Shop List",
-        }}
-      />
-      <Tabs.Screen
-        name="profile"
-        options={{
-          title: "Profile",
-        }}
-      />
-    </Tabs>
+    <View className="flex-1">
+      <Tabs screenOptions={{ tabBarActiveTintColor: "blue" }}>
+        <Tabs.Screen
+          name="index"
+          options={{
+            title: "Home",
+          }}
+        />
+        <Tabs.Screen
+          name="meal-planner"
+          options={{
+            title: "Meal Plan",
+          }}
+        />
+        <Tabs.Screen
+          name="shopping-list"
+          options={{
+            title: "Shop List",
+          }}
+        />
+        <Tabs.Screen
+          name="profile"
+          options={{
+            title: "Profile",
+          }}
+        />
+      </Tabs>
+      {/* Conditionally render the camera button */}
+      {isCameraScreen !== "/camera" && (
+        <Pressable
+          className="absolute right-5 w-16 h-16 border-2 border-white bg-primary-dark items-center justify-center rounded-full"
+          style={{
+            bottom: insets.bottom + 70,
+            paddingBottom: Platform.OS === "android" ? 5 : 0,
+          }}
+          onPress={handleStartCamera}
+        >
+          <EvilIcons name="camera" size={30} color="white" />
+        </Pressable>
+      )}
+    </View>
   );
 }
