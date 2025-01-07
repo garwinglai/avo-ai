@@ -1,7 +1,7 @@
 import { View, Text, Pressable } from "react-native";
 import React, { useState } from "react";
 
-const RectangleButtonPrimary = ({ children, onPress }) => {
+const RectangleButtonPrimary = ({ children, onPress, disabled }) => {
   const [pressed, setPressed] = useState(false);
 
   const handlePress = () => {
@@ -9,15 +9,16 @@ const RectangleButtonPrimary = ({ children, onPress }) => {
     setTimeout(() => {
       setPressed(false);
     }, 100);
-    // onPress();
+    onPress();
   };
 
   return (
     <Pressable
+      disabled={disabled}
       onPress={handlePress}
-      className={`shadow  flex-1 items-center ${
-        pressed ? `bg-primary` : `bg-primary-dark`
-      }  rounded-lg p-4`}
+      className={`  flex-1 items-center ${
+        disabled ? ` bg-gray-300` : `bg-primary-dark shadow`
+      } ${pressed ? `bg-primary-dark` : `bg-primary`}  rounded-lg p-4`}
     >
       <Text className="text-center text-p font-medium text-white">
         {children}

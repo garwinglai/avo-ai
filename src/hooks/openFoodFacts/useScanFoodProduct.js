@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { fetchProductDetails } from "../../api/openFoodFacts/food";
-import { parseProduct } from "../../utils/productUtils";
+import { parseProduct } from "../../utils/openFoodFacts/productUtils";
 
 const useScanFoodProduct = () => {
   const [scannedProduct, setScannedProduct] = useState(null);

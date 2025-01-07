@@ -24,7 +24,6 @@ const BottomSheetComponent = ({
   );
 
   const handleSheetChanges = useCallback((index) => {
-    console.log("index", index);
     if (index == "-1") {
       handleOnBottomSheetClose();
     }

@@ -18,17 +18,22 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       if (loading) setLoading(false);
+
       if (currentUser) {
         setUser(currentUser);
+        console.log(segments[0]);
+        if (segments[0] == "auth") {
+          router.replace("/(tabs)");
+        }
       } else {
         setUser(null);
-        if (segments[0] !== "(auth)") {
+        if (segments[0] !== "auth") {
           router.replace("/auth/login");
         }
       }
     });
     return unsubscribe;
-  }, []);
+  }, [segments]);
 
   return (
     <AuthContext.Provider value={{ user, loading }}>

@@ -1,13 +1,13 @@
 import { View, Text, Image, Pressable } from "react-native";
 import React from "react";
-import HealthScore from "../HealthScore";
-import RectangleButtonPrimary from "../buttons/RectangleButtonPrimary";
-import RectangleButtonSecondary from "../buttons/RectangleButtonSecondary";
-import MacroNutrientSimple from "../MacroSimple";
-import Accordion from "../animations/accordion/Accordion";
-import HorizontalDivider from "../dividers/HorizontalDivider";
-import VerticleDivider from "../dividers/VerticleDivider";
-import AccordionDetail from "../animations/AccordionDetail";
+import HealthScore from "../shared/HealthScore";
+import RectangleButtonPrimary from "../ui/buttons/RectangleButtonPrimary";
+import RectangleButtonSecondary from "../ui/buttons/RectangleButtonSecondary";
+import MacroNutrientSimple from "../shared/MacroSimple";
+import Accordion from "../ui/animations/accordion/Accordion";
+import HorizontalDivider from "../ui/dividers/HorizontalDivider";
+import VerticleDivider from "../ui/dividers/VerticleDivider";
+import AccordionDetail from "../ui/animations/AccordionDetail";
 
 const ScannedSheetDetail = ({ scannedProduct }) => {
   const {

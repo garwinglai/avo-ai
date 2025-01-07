@@ -1,7 +1,7 @@
 import { View, Text } from "react-native";
 import React from "react";
 import * as Progress from "react-native-progress";
-import { nutritionRDI } from "../../utils/nutrientUtils";
+import { nutritionRDI } from "../../../utils/nutrientUtils";
 
 const AccordionDetail = ({ title, items }) => {
   const progressAmount = (amountInGrams, rdiInMilligrams) => {

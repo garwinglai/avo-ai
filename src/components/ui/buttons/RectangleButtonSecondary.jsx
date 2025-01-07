@@ -9,7 +9,7 @@ const RectangleButtonSecondary = ({ children, onPress }) => {
     setTimeout(() => {
       setPressed(false);
     }, 100);
-    // onPress();
+    onPress();
   };
 
   return (

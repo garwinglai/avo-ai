@@ -12,8 +12,7 @@ const logger = require("firebase-functions/logger");
 const axios = require("axios");
 require("dotenv").config();
 
-// Create and deploy your first functions
-// https://firebase.google.com/docs/functions/get-started
+exports.openAI = require("./openAI");
 
 exports.addmessage = onRequest(async (req, res) => {
   // Grab the text parameter.
@@ -55,13 +54,12 @@ exports.getFatSecretToken = onRequest(async (req, res) => {
     );
 
     const newToken = response.data.access_token;
-    console.log("newToken", newToken);
 
     res.status(200).send(newToken);
   } catch (error) {
     console.error("Error fetching FatSecret token:", error);
     res.status(500).send("Error fetching FatSecret token");
   } finally {
-    console.log("finally");
+    // console.log("finally");
   }
 });

@@ -1,4 +1,4 @@
-import { vitamins, minerals, macros } from "./nutrientUtils";
+import { vitamins, minerals, macros } from "../nutrientUtils";
 
 export const parseProduct = (openFoodFactProduct) => {
   const { product, status_verbose } = openFoodFactProduct ?? {};
@@ -218,12 +218,10 @@ const updateNutrientCategory = (category, nutrition) => {
 
     if (nutrition[nutrientKey] !== undefined) {
       const nutritionAmount = nutrition[nutrientKey];
-      console.log("nutrientValue", nutritionAmount);
-      console.log("nutrientKey", nutrientKey);
+
       // Update and round the value
       category[key].amount_per_serving = nutritionAmount;
 
-      console.log("categry", category);
       // Push the abbreviation and amount to the array
       nutritionArray.push({
         name: category[key].abbreviation,
@@ -231,8 +229,6 @@ const updateNutrientCategory = (category, nutrition) => {
       });
     }
   }
-
-  console.log("nutritionArray", nutritionArray);
 
   return { updatedCategory: category, nutritionArray }; // Return updated category and array of {name, amount}
 };
