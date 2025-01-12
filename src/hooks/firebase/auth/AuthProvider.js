@@ -10,6 +10,7 @@ const AuthContext = createContext();
 // AuthProvider component to wrap the app
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [uid, setUid] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const segments = useSegments();
@@ -21,7 +22,8 @@ export const AuthProvider = ({ children }) => {
 
       if (currentUser) {
         setUser(currentUser);
-        console.log(segments[0]);
+        setUid(currentUser.uid);
+
         if (segments[0] == "auth") {
           router.replace("/(tabs)");
         }
@@ -36,7 +38,7 @@ export const AuthProvider = ({ children }) => {
   }, [segments]);
 
   return (
-    <AuthContext.Provider value={{ user, loading }}>
+    <AuthContext.Provider value={{ user, loading, uid }}>
       {children}
     </AuthContext.Provider>
   );

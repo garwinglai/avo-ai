@@ -1,24 +1,30 @@
 import { View, Text, Pressable } from "react-native";
-import React from "react";
+import React, { useState } from "react";
 import { useRouter } from "expo-router";
 import { auth } from "../../../firebase/firebaseConfig";
 import { signOut } from "firebase/auth";
+import { generateMealPlan } from "../../api/spoonacular/food";
 
 const MealPlannerTab = () => {
-  const handleLogout = async () => {
+  const [mealPlan, setMealPlan] = useState(null);
+
+  const handleGenerateMealPlan = async () => {
     try {
-      await signOut(auth);
+      const mealPlan = await generateMealPlan("week", 1500, "vegan", "nuts");
+      console.log("Generated Meal Plan:", mealPlan.data);
+      setMealPlan(mealPlan.data);
     } catch (error) {
-      Alert.alert("Error logging out", error.message);
+      console.error("Error:", error.message);
     }
   };
 
   return (
     <View>
       <Text>MealPlanTab</Text>
-      <Pressable onPress={handleLogout}>
-        <Text>Logout</Text>
+      <Pressable onPress={handleGenerateMealPlan}>
+        <Text>Generate Meal Plan</Text>
       </Pressable>
+      {mealPlan && <Text>{JSON.stringify(mealPlan)}</Text>}
     </View>
   );
 };

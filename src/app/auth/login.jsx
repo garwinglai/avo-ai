@@ -12,8 +12,8 @@ import { Link, useRouter } from "expo-router";
 import usePasswordAuth from "../../hooks/firebase/auth/usePasswordAuth";
 
 const Login = () => {
-  const [email, setEmail] = useState("laigarwing@gmail.com");
-  const [password, setPassword] = useState("supermonkey1");
+  const [email, setEmail] = useState("123@gmail.com");
+  const [password, setPassword] = useState(`SUPERmonkey1!"`);
   const {
     user,
     loggingIn,

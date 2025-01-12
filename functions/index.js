@@ -54,12 +54,13 @@ exports.getFatSecretToken = onRequest(async (req, res) => {
     );
 
     const newToken = response.data.access_token;
+    console.log("newToken", newToken);
 
     res.status(200).send(newToken);
   } catch (error) {
     console.error("Error fetching FatSecret token:", error);
     res.status(500).send("Error fetching FatSecret token");
   } finally {
-    // console.log("finally");
+    console.log("finally");
   }
 });

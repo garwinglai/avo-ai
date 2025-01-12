@@ -1,6 +1,12 @@
 import { showToast } from "../toast";
 
-export const validatePages = (step, userData, userDiet, userWeight) => {
+export const validatePages = (
+  step,
+  userData,
+  userDiet,
+  userWeight,
+  userFitness
+) => {
   const toastMessage = {
     type: "error",
     // body: "Please fill in all required fields.",
@@ -24,13 +30,16 @@ export const validatePages = (step, userData, userDiet, userWeight) => {
       }
       break;
     case 3:
-      // if (!validatePage2()) {
-      //   showToast(toastMessage);
-      //   return false;
-      // }
+      const page3Validation = validatePage3(userDiet);
+      toastMessage.header = page3Validation.message;
+      if (!page3Validation.isValid) {
+        showToast(toastMessage); // Display specific error message
+        return false;
+      }
+      break;
       break;
     case 4:
-      const page4Validation = validatePage4(userWeight);
+      const page4Validation = validatePage4(userWeight, userFitness);
       toastMessage.header = page4Validation.message;
       if (!page4Validation.isValid) {
         showToast(toastMessage); // Display specific error message
@@ -126,16 +135,40 @@ export const validatePage2 = (userData) => {
   return { isValid: true, message: "" }; // No errors
 };
 
-export const validatePage4 = (userWeight) => {
+export const validatePage3 = (userDiet) => {
+  // Helper functions for individual validation
+  if (userDiet.priorities.length < 1) {
+    return {
+      isValid: false,
+      message: `Missing meal priorities.`,
+    };
+  }
+
+  return { isValid: true, message: "" }; // No errors
+};
+
+export const validatePage4 = (userWeight, userFitness) => {
   // Helper functions for individual validation
   const isValidWeight = (weight) => weight > 0 && weight <= 1000; // Example range for weight in pounds
   const isValidGoalWeight = (current, goal) =>
     goal > 0 && goal <= 1000 && goal !== current;
   const isValidExercisePerWeek = (count) => count >= 0 && count <= 7; // Valid range for days of exercise per week
 
-  const requiredFields = ["current", "goal", "exercisePerWeek"];
+  const requiredWeightFields = ["current", "goal"];
+  const weeklyExercise = userFitness["exercisePerWeek"];
 
-  for (const field of requiredFields) {
+  if (!weeklyExercise || weeklyExercise.toString().trim() === "") {
+    return { isValid: false, message: `Missing field(s).` };
+  } else {
+    if (!isValidExercisePerWeek(Number(weeklyExercise))) {
+      return {
+        isValid: false,
+        message: "Invalid day entry (0-7).",
+      };
+    }
+  }
+
+  for (const field of requiredWeightFields) {
     const value = userWeight[field];
     if (!value || value.toString().trim() === "") {
       return { isValid: false, message: `Missing field(s).` };
@@ -156,14 +189,6 @@ export const validatePage4 = (userWeight) => {
           return {
             isValid: false,
             message: "Invalid weight goal (1-1000 lbs).",
-          };
-        }
-        break;
-      case "exercisePerWeek":
-        if (!isValidExercisePerWeek(Number(value))) {
-          return {
-            isValid: false,
-            message: "Invalid day entry (0-7).",
           };
         }
         break;
