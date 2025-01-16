@@ -4,6 +4,7 @@ import {
   TouchableOpacity,
   Pressable,
   ScrollView,
+  Platform,
 } from "react-native";
 import React, { useState } from "react";
 import InputField from "../InputField";
@@ -98,8 +99,7 @@ const Page3 = ({ data, handleDataChange }) => {
       </View>
 
       <MultiSelectModal
-        label="Select Meal Priority"
-        subtitle="(Max 3 choices)"
+        label="Choose up to 3:"
         options={mealPriority}
         value={selectedMealPriority}
         onChange={(value) => handleDataChange("priorities", value)}
@@ -150,8 +150,10 @@ const Page3 = ({ data, handleDataChange }) => {
           />
           {excludeFoodInput && (
             <Pressable
+              className={`absolute right-2 rounded-lg bg-primary py-2 px-4 ${
+                Platform.OS == "ios" ? "bottom-[20px]" : "bottom-[18px]"
+              } `}
               onPress={() => handleAddInput("excludeFood")}
-              className="absolute right-2 bottom-[20px] rounded-lg bg-primary py-2 px-4"
             >
               <Text className="text-white">Add</Text>
             </Pressable>

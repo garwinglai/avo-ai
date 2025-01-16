@@ -48,7 +48,6 @@ export default function MultiSelectModal({
       <View style={styles.modalOverlay}>
         <View style={styles.modalContainer}>
           <Text style={styles.modalTitle}>{label}</Text>
-          <Text className="pb-6  font-light">{subtitle}</Text>
           <ScrollView style={styles.scrollView}>
             {options.map((option) => (
               <TouchableOpacity
@@ -96,9 +95,9 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   modalTitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: "bold",
-    marginBottom: 10,
+    marginBottom: 14,
   },
   scrollView: {
     maxHeight: 300,
