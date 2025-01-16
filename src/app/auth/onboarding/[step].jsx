@@ -37,65 +37,222 @@ import AntDesign from "@expo/vector-icons/AntDesign";
 import { validateUnitsRDA } from "../../../utils/unitValidations";
 import { zodResponseFormat } from "openai/helpers/zod.mjs";
 import { nutritionSchema } from "../../../utils/schema/nutritionSchema";
-import HorizontalDivider from "../../../components/ui/dividers/HorizontalDivider";
+import { showToast } from "../../../utils/toast";
+import { auth } from "../../../../firebase/firebaseConfig";
+import { deleteUser } from "firebase/auth";
+import CustomModal from "../../../components/ui/Modal";
+import * as Progress from "react-native-progress";
 
 const OnboardingStep = () => {
   const { step } = useLocalSearchParams();
   const { nextStep, previousStep } = userOnboardingSteps();
   const { userData, updateUserData } = useOnboardingUserStore();
-  const {
-    userDiet,
-    updateUserDiet,
-    updatePriority,
-    addAllergen,
-    removeAllergen,
-    addExcludeFood,
-    removeExcludeFood,
-  } = useOnboardingDietStore();
+  const { userDiet, updateUserDiet, updatePriority } = useOnboardingDietStore();
   const { userWeight, updateUserWeight } = useOnboardingWeightStore();
   const { accountInfo } = useAccountInfoStore();
   const { userFitness, updateUserFitenssData } = useOnboardingFitnessStore();
+  const [signupProgress, setSignupProgress] = useState(0);
+  const [signupLoadingText, setSignupLoadingText] = useState(
+    "Creating account..."
+  );
 
   const [isCreatingAccount, setIsCreatingAccount] = useState(false);
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
-  const {
-    saveToFirestoreCollection,
-    saveToFirestoreDoc,
-    isSavingToFirestore,
-    errorSavingToFirestore,
-  } = useSaveToFirestore();
-  const {
-    user,
-    loggingIn,
-    errorLogginIn,
-    signInWithPassword,
-    createUserWithPassword,
-  } = usePasswordAuth();
+  const { saveToFirestoreDoc, saveToFirestoreCollection } =
+    useSaveToFirestore();
+  const { createUserWithPassword } = usePasswordAuth();
 
-  // Determine the current group of steps based on the step number
   const router = useRouter();
   const currentStep = steps[parseInt(step) - 1];
 
-  const handleCreateCreateAccount = async () => {
-    let userId;
+  //* Action buttons Next/Back`
+  const handleBack = () => {
+    if (parseInt(step) > 1) {
+      previousStep();
+      router.push(`/auth/onboarding/${parseInt(step) - 1}`);
+    }
+  };
 
-    try {
-      const { accessToken, uid } = await createUserWithPassword(
-        accountInfo.email,
-        accountInfo.password
-      );
+  const handleNext = async () => {
+    //check if the steps has any empty values, if so, alert the user
 
-      userId = uid;
-    } catch (error) {
-      Alert.alert(
-        "Signup failed",
-        `(${error})` // This will appear on the second line
-      );
+    if (!validatePages(step, userData, userDiet, userWeight, userFitness)) {
       return;
     }
-    console.log("Creating Account");
 
-    // Fill in missing fields
+    if (parseInt(step) < steps.length) {
+      nextStep();
+      router.push(`/auth/onboarding/${parseInt(step) + 1}`);
+    } else {
+      // Complete onboarding
+      setIsModalVisible(true);
+      setIsCreatingAccount(true);
+      await handleCreateCreateAccount();
+      setIsCreatingAccount(false);
+    }
+  };
+
+  const handleBackToSignup = () => {
+    router.push("/auth/signup");
+  };
+
+  //* Handle form changes
+  const handleUserDataChange = (key, value) => {
+    updateUserData(key, value);
+  };
+
+  const handlePageFourDataChange = (key, value, store) => {
+    if (store === "weight") {
+      updateUserWeight(key, value);
+    }
+
+    if (store === "fitness") {
+      updateUserFitenssData(key, value);
+    }
+  };
+
+  const handleDietChange = (key, value) => {
+    if (key == "preference") {
+      updateUserDiet(key, value);
+      return;
+    }
+
+    if (key == "priorities") {
+      updatePriority(value);
+    }
+
+    if (key == "allergens") {
+      updateAllergens(value);
+    }
+
+    if (key == "exludeFoods") {
+      updateExcludeFoods(value);
+    }
+  };
+
+  // * Create Accounts
+  const handleCreateCreateAccount = async () => {
+    // * Create new user in firebase auth
+    setSignupProgress(0.15);
+    setSignupLoadingText("Initializing.");
+    const { userId, error } = await createNewUser();
+    if (error) {
+      showToast({
+        type: "error",
+        header: error,
+        body: "Please try again.",
+        position: "top",
+        topOffset: 80,
+      });
+
+      setIsCreatingAccount(false);
+      setIsModalVisible(false);
+      return;
+    }
+    setSignupProgress(0.35);
+    setSignupLoadingText("Creating your AI assistant. (10 seconds)");
+    // * openAI generate nutritional goals
+    const completeUserData = await aiGenerateNutritionGoals();
+    if (!completeUserData) {
+      await cleanupDeleteUser();
+
+      showToast({
+        type: "error",
+        header: "Hmm.. seems like Avo AI is down.",
+        body: "Please try again.",
+        position: "top",
+        topOffset: 80,
+      });
+
+      setIsCreatingAccount(false);
+      setIsModalVisible(false);
+      return;
+    }
+    setSignupProgress(0.75);
+    setSignupLoadingText("AI awakening.");
+    // * Save data to Firestore
+    try {
+      completeUserData.uid = userId;
+      completeUserData.email = accountInfo.email;
+      await saveToFirestoreDoc(`users`, userId, completeUserData);
+      setSignupProgress(1);
+
+      router.push("/(tabs)/");
+    } catch (error) {
+      console.log("Error saving data to firestore:", error);
+      await cleanupDeleteUser();
+
+      showToast({
+        type: "error",
+        header: "Error creating account.",
+        body: "Please try again.",
+        position: "top",
+        topOffset: 80,
+      });
+    } finally {
+      setIsModalVisible(false);
+      setIsCreatingAccount(false);
+    }
+  };
+
+  const cleanupDeleteUser = async () => {
+    const user = auth.currentUser;
+
+    try {
+      await deleteUser(user);
+    } catch (error) {
+      console.log("Problem cleaning up: deleting user.", error);
+
+      const data = {
+        message: "Error cleaning up - deleting user in failed signup.",
+        uid: user.uid,
+      };
+      await saveToFirestoreCollection("errors", data);
+    }
+  };
+
+  const createNewUser = async () => {
+    const { user, error } = await createUserWithPassword(
+      accountInfo.email,
+      accountInfo.password
+    );
+
+    if (error) {
+      console.log("error", error);
+      return { error };
+    }
+
+    return { userId: user.uid };
+  };
+
+  const aiGenerateNutritionGoals = async () => {
+    console.log("generating ai...");
+
+    const completeUserData = stuctureUserData();
+    const { conversation, response_format, openAIURL } = createAIContext();
+
+    try {
+      const response = await axios.post(openAIURL, {
+        message: conversation,
+        model: "gpt-4o-mini",
+        response_format: response_format,
+      });
+
+      const aiResponse = JSON.parse(response.data.content);
+      const nutritionUpdatedUnits = validateUnitsRDA(aiResponse);
+      completeUserData.dietaryAllowance = nutritionUpdatedUnits;
+
+      return completeUserData;
+      // You can add additional logic here to handle the response from your backend
+    } catch (error) {
+      console.log("error", error);
+
+      return null;
+    }
+  };
+
+  const stuctureUserData = () => {
     const updatedUserData = {
       ...userData,
       birthdayMonth: String(userData.birthdayMonth).padStart(2, "0"),
@@ -131,7 +288,7 @@ const OnboardingStep = () => {
       },
     };
 
-    const completeUserData = {
+    return {
       ...updatedUserData,
       diet: {
         ...userDiet,
@@ -143,7 +300,9 @@ const OnboardingStep = () => {
         ...userFitness,
       },
     };
+  };
 
+  const createAIContext = () => {
     const userDetails = `
     The user's details are as follows:
     - Weight: ${userWeight.current} kg
@@ -157,7 +316,7 @@ const OnboardingStep = () => {
 
     const openAIURL = "https://openai-chatopenai-i32lfigxrq-uc.a.run.app";
     const systemContent =
-      "You are a nutritionist. Generate precise nutritional recommendations based on the user's weight, goals, age, and diet preferences. Reply units should only be in g, mg, or mcg.";
+      "You are a nutritionist. Generate precise nutritional recommendations based on the user's weight, goals, age, and diet preferences. Reply units should only be in g, mg, mcg, or kcal.";
     const response_format = zodResponseFormat(nutritionSchema, "nutrition");
     const prompt = `Please provide the nutrition recommendations based on my data. ${userDetails}`;
     const conversation = [
@@ -171,104 +330,28 @@ const OnboardingStep = () => {
       },
     ];
 
-    // return;
-    try {
-      const response = await axios.post(openAIURL, {
-        message: conversation,
-        model: "gpt-4o-mini",
-        response_format: response_format,
-      });
-
-      const aiResponse = JSON.parse(response.data.content);
-      const nutritionUpdatedUnits = validateUnitsRDA(aiResponse);
-      completeUserData.dietaryAllowance = nutritionUpdatedUnits;
-
-      // You can add additional logic here to handle the response from your backend
-    } catch (error) {
-      console.error("Error calling backend:", error);
-    }
-    console.log(completeUserData);
-
-    try {
-      completeUserData.uid = userId;
-      completeUserData.email = accountInfo.email;
-      const id = await saveToFirestoreDoc(`users`, userId, completeUserData);
-
-      router.replace("/(tabs)");
-    } catch (error) {
-      console.log("error", error);
-
-      showToast({
-        type: "error",
-        header: "Issue",
-        body: "Error creating account.",
-        position: "top",
-        topOffset: 80,
-      });
-    }
+    return { conversation, response_format, openAIURL };
   };
 
-  const handleNext = async () => {
-    //check if the steps has any empty values, if so, alert the user
+  const modalBody = (
+    <>
+      <Progress.Circle
+        progress={signupProgress}
+        showsText={true}
+        size={70}
+        thickness={3}
+        color={"green"}
+        fill={"transparent"}
+      />
+      <View className="flex-row items-center gap-2">
+        <Progress.CircleSnail thickness={1} size={14} color={"black"} />
+        <Text>{signupLoadingText}</Text>
+      </View>
+    </>
+  );
 
-    if (!validatePages(step, userData, userDiet, userWeight, userFitness)) {
-      return;
-    }
-
-    if (parseInt(step) < steps.length) {
-      nextStep();
-      router.push(`/auth/onboarding/${parseInt(step) + 1}`);
-    } else {
-      // Complete onboarding
-
-      setIsCreatingAccount(true);
-      await handleCreateCreateAccount();
-      setIsCreatingAccount(false);
-    }
-  };
-
-  const handleBack = () => {
-    if (parseInt(step) > 1) {
-      previousStep();
-      router.push(`/auth/onboarding/${parseInt(step) - 1}`);
-    }
-  };
-
-  const handleUserDataChange = (key, value) => {
-    updateUserData(key, value);
-  };
-
-  const handlePageFourDataChange = (key, value, store) => {
-    if (store === "weight") {
-      updateUserWeight(key, value);
-    }
-
-    if (store === "fitness") {
-      updateUserFitenssData(key, value);
-    }
-  };
-
-  const handleDietChange = (key, value) => {
-    if (key == "preference") {
-      updateUserDiet(key, value);
-      return;
-    }
-
-    if (key == "priorities") {
-      updatePriority(value);
-    }
-
-    if (key == "allergens") {
-      updateAllergens(value);
-    }
-
-    if (key == "exludeFoods") {
-      updateExcludeFoods(value);
-    }
-  };
-
-  const handleBackToSignup = () => {
-    router.push("/auth/signup");
+  const handleModalClose = () => {
+    setIsModalVisible(false);
   };
 
   return (
@@ -278,6 +361,11 @@ const OnboardingStep = () => {
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <SafeAreaView className="flex-1 items-center bg-bg-light p-4">
+          <CustomModal
+            body={modalBody}
+            visible={isModalVisible}
+            onClose={handleModalClose}
+          />
           {/* create a button to go back */}
           <Pressable
             className="w-full flex-row items-center gap-2"

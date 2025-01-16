@@ -1,8 +1,14 @@
-import { View, Text, TouchableOpacity, Pressable } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Pressable,
+  ScrollView,
+} from "react-native";
 import React, { useState } from "react";
 import InputField from "../InputField";
 import Dropdown from "../../ui/Dropdown";
-import MultiSelectModal from "../../ui/MultiSelect";
+import MultiSelectModal from "../../ui/MultiSelectModal";
 import { useOnboardingDietStore } from "../../../store/onboardingStore";
 import EvilIcons from "@expo/vector-icons/EvilIcons";
 
@@ -59,7 +65,7 @@ const Page3 = ({ data, handleDataChange }) => {
   };
 
   return (
-    <View>
+    <ScrollView>
       <Dropdown
         label="Diet"
         value={data["preference"]}
@@ -93,6 +99,7 @@ const Page3 = ({ data, handleDataChange }) => {
 
       <MultiSelectModal
         label="Select Meal Priority"
+        subtitle="(Max 3 choices)"
         options={mealPriority}
         value={selectedMealPriority}
         onChange={(value) => handleDataChange("priorities", value)}
@@ -164,7 +171,7 @@ const Page3 = ({ data, handleDataChange }) => {
           ))}
         </View>
       </View>
-    </View>
+    </ScrollView>
   );
 };
 

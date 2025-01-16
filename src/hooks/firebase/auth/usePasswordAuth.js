@@ -24,11 +24,11 @@ const usePasswordAuth = () => {
       );
 
       setUser(userCredential.user); // Updates the hook state
-      return userCredential.user; // Return the user for immediate use
+      return { user: userCredential.user, error: null }; // Return the user for immediate use
     } catch (error) {
-      console.log("create account error", error);
+      console.log("Error creating account:", error);
       setErrorLoggingIn(error.code);
-      return error.code;
+      return { user: null, error: error.code };
     } finally {
       setLoggingIn(false);
     }

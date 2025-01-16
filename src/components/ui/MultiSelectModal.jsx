@@ -5,13 +5,13 @@ import {
   Modal,
   TouchableOpacity,
   StyleSheet,
-  Button,
   ScrollView,
-  Pressable,
+  Alert,
 } from "react-native";
 import BouncyCheckbox from "react-native-bouncy-checkbox";
 import RectangleButtonPrimary from "./buttons/RectangleButtonPrimary";
 import RectangleButtonSecondary from "./buttons/RectangleButtonSecondary";
+import { showToast } from "../../utils/toast";
 
 export default function MultiSelectModal({
   label,
@@ -20,6 +20,7 @@ export default function MultiSelectModal({
   onChange,
   visible,
   onClose,
+  subtitle,
 }) {
   const [selectedValues, setSelectedValues] = useState(value);
 
@@ -32,6 +33,12 @@ export default function MultiSelectModal({
   };
 
   const handleApply = () => {
+    //check if selectedValues length > 3 if so , show Alert
+    if (selectedValues.length > 3) {
+      Alert.alert("You can only select up to 3 choices.");
+      return;
+    }
+
     onChange(selectedValues);
     onClose(); // Close the modal after applying changes
   };
@@ -41,6 +48,7 @@ export default function MultiSelectModal({
       <View style={styles.modalOverlay}>
         <View style={styles.modalContainer}>
           <Text style={styles.modalTitle}>{label}</Text>
+          <Text className="pb-6  font-light">{subtitle}</Text>
           <ScrollView style={styles.scrollView}>
             {options.map((option) => (
               <TouchableOpacity

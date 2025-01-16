@@ -20,18 +20,23 @@ export const AuthProvider = ({ children }) => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       if (loading) setLoading(false);
 
-      if (currentUser) {
-        setUser(currentUser);
-        setUid(currentUser.uid);
-
-        if (segments[0] == "auth") {
-          router.replace("/(tabs)");
-        }
-      } else {
+      //* If no user, return to login page if not already.
+      if (!currentUser) {
         setUser(null);
         if (segments[0] !== "auth") {
           router.replace("/auth/login");
         }
+        return;
+      }
+
+      // * If user exists, nav to home page if on login or signup.
+      setUser(currentUser);
+      setUid(currentUser.uid);
+
+      const isAuthRoute = segments[1] == "login" || segments[1] == "signup";
+
+      if (segments[0] == "auth" && isAuthRoute) {
+        router.replace("/(tabs)");
       }
     });
     return unsubscribe;

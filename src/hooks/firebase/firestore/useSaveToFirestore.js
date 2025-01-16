@@ -17,11 +17,11 @@ const useSaveToFirestore = () => {
       data.updated = "";
       const docRef = await addDoc(collection(db, collectionName), data);
       console.log("Document written with ID: ", docRef.id);
-      return docRef.id; // Return the ID of the newly created document
+      return { docId: docRef.id }; // Return the ID of the newly created document
     } catch (err) {
       console.error("Error adding document: ", err);
       setErrorSavingToFirestore(err.message);
-      throw err;
+      return { error: err };
     } finally {
       setIsSavingToFirestore(false);
     }
@@ -37,11 +37,11 @@ const useSaveToFirestore = () => {
       data.updated = "";
       const docRef = await setDoc(doc(db, collectionName, docId), data);
 
-      return docId; // Return the ID of the newly created document
+      return { docId }; // Return the ID of the newly created document
     } catch (err) {
       console.error("Error adding document: ", err);
       setErrorSavingToFirestore(err.message);
-      throw err;
+      return { error: err };
     } finally {
       setIsSavingToFirestore(false);
     }
