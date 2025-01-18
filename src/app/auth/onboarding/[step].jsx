@@ -42,6 +42,7 @@ import { auth } from "../../../../firebase/firebaseConfig";
 import { deleteUser } from "firebase/auth";
 import CustomModal from "../../../components/ui/Modal";
 import * as Progress from "react-native-progress";
+import LoadingModal from "../../../components/ui/LoadingModal";
 
 const OnboardingStep = () => {
   const { step } = useLocalSearchParams();
@@ -55,7 +56,6 @@ const OnboardingStep = () => {
   const [signupLoadingText, setSignupLoadingText] = useState(
     "Creating account..."
   );
-
   const [isCreatingAccount, setIsCreatingAccount] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
 
@@ -333,23 +333,6 @@ const OnboardingStep = () => {
     return { conversation, response_format, openAIURL };
   };
 
-  const modalBody = (
-    <>
-      <Progress.Circle
-        progress={signupProgress}
-        showsText={true}
-        size={70}
-        thickness={3}
-        color={"green"}
-        fill={"transparent"}
-      />
-      <View className="flex-row items-center gap-2">
-        <Progress.CircleSnail thickness={1} size={14} color={"black"} />
-        <Text>{signupLoadingText}</Text>
-      </View>
-    </>
-  );
-
   const handleModalClose = () => {
     setIsModalVisible(false);
   };
@@ -362,7 +345,12 @@ const OnboardingStep = () => {
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <SafeAreaView className="flex-1 items-center bg-bg-light p-4">
           <CustomModal
-            body={modalBody}
+            body={
+              <LoadingModal
+                progress={signupProgress}
+                signupLoadingText={signupLoadingText}
+              />
+            }
             visible={isModalVisible}
             onClose={handleModalClose}
           />

@@ -63,4 +63,33 @@ const nutritionSchema = z.object({
   micros: z.object({ vitamins: vitaminSchema, minerals: mineralSchema }),
 });
 
-export { nutritionSchema };
+// Meal schema
+const meal = z.object({
+  foodItem: z.string(),
+  brand: z.string().optional(),
+  ingredients: z.array(z.string()).optional(),
+  servingSizeAmount: z.number(),
+  servcingSizeUnit: z.string(),
+  // servingSizeDescription: z.string(), // New key for serving size description
+  nutrition: z.object({
+    sugar: value,
+    cholesterol: value,
+    fiber: value,
+    salt: value,
+    macros: macroSchema,
+    micros: z.object({
+      vitamins: vitaminSchema,
+      minerals: mineralSchema,
+    }),
+    additives: z
+      .array(z.object({ name: z.string(), values: value }))
+      .optional(),
+  }),
+});
+
+const mealOutputSchema = z.object({
+  foodDetected: z.boolean(),
+  meals: z.array(meal),
+});
+
+export { nutritionSchema, mealOutputSchema };

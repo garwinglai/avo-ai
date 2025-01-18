@@ -10,3 +10,14 @@ export const showToast = ({ type, header, body, position, topOffset }) => {
     topOffset,
   });
 };
+
+export const handleErrors = (message, next) => {
+  next();
+  showToast({
+    type: "error",
+    header: "Error",
+    body: message,
+    position: "top",
+    topOffset: 80,
+  });
+};
